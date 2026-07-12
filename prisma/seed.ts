@@ -190,7 +190,7 @@ async function main() {
     },
   ];
 
-  for (const term de terminos) {
+  for (const term of terminos) {
     await prisma.glossaryTerm.create({ data: term });
   }
   console.log(`Creados ${terminos.length} términos de educación financiera.`);
