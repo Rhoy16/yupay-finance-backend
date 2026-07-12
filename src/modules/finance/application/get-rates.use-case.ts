@@ -5,6 +5,8 @@ interface GetRatesFilters {
   monto?: number;
   plazo?: number;
   departamento?: string;
+  tipoProducto?: string;
+  moneda?: string;
 }
 
 export class GetRatesUseCase {
@@ -15,6 +17,8 @@ export class GetRatesUseCase {
       amount: filters.monto,
       term: filters.plazo,
       region: filters.departamento,
+      productType: filters.tipoProducto,
+      currency: filters.moneda,
     });
   }
 }

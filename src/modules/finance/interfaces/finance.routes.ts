@@ -5,6 +5,7 @@ import { SaveSimulationUseCase } from '../application/save-simulation.use-case.j
 import { GetHistoryUseCase } from '../application/get-history.use-case.js';
 import { PrismaFinanceRepository } from '../infrastructure/prisma-finance.repository.js';
 import { authMiddleware } from '../../../shared/middlewares/auth-middleware.js';
+import { requirePlan } from '../../../shared/middlewares/require-plan.js';
 
 export function createFinanceRouter(): Router {
   const router = Router();
@@ -21,7 +22,7 @@ export function createFinanceRouter(): Router {
   );
 
   router.get('/rates', controller.getRates);
-  router.post('/simulations', controller.saveSimulation);
+  router.post('/simulations', authMiddleware, requirePlan('PROFESIONAL'), controller.saveSimulation);
   router.get('/simulations/history', authMiddleware, controller.getHistory);
 
   return router;

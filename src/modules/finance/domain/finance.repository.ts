@@ -8,6 +8,8 @@ export interface FinanceRepository {
     amount?: number;
     term?: number;
     region?: string;
+    productType?: string;
+    currency?: string;
   }): Promise<FinancialRate[]>;
 
   findEntityById(entityId: string): Promise<FinancialEntity | null>;

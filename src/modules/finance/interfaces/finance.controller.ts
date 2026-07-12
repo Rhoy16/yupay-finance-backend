@@ -33,6 +33,7 @@ export class FinanceController {
                 name: r.entity.name,
                 logoUrl: r.entity.logoUrl,
                 type: r.entity.type,
+                riskTrafficLight: r.entity.riskTrafficLight,
               }
             : null,
         }))
@@ -44,30 +45,23 @@ export class FinanceController {
 
   saveSimulation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const body = saveSimulationSchema.parse(req.body);
+      const authReq = req as any;
+      const parsed = saveSimulationSchema.safeParse(req.body);
 
-      // Extraer opcionalmente el usuario si viene el token
-      let userId: string | null = null;
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        try {
-          const token = authHeader.split(' ')[1];
-          const decoded = jwt.verify(token, env.JWT_SECRET) as { id: string };
-          userId = decoded.id;
-        } catch (e) {
-          // Token inválido: responder con 401
-          res.status(401).json({ message: 'Token de sesión inválido o expirado' });
-          return;
-        }
+      if (!parsed.success) {
+        res.status(400).json({ message: 'Datos de simulación inválidos', errors: parsed.error.format() });
+        return;
+      }
+
+      const userId = authReq.user?.id;
+      if (!userId) {
+        res.status(403).json({ message: 'Se requiere un usuario autenticado para guardar una simulación.' });
+        return;
       }
 
       const simulation = await this.saveSimulationUseCase.execute({
-        userId,
-        monto: body.monto,
-        plazo: body.plazo,
-        tasa: body.tasa,
-        interesGanado: body.interesGanado,
-        entidadId: body.entidadId,
+        ...parsed.data,
+        userId: userId,
       });
 
       res.status(201).json({
@@ -85,6 +79,7 @@ export class FinanceController {
               name: simulation.selectedEntity.name,
               logoUrl: simulation.selectedEntity.logoUrl,
               type: simulation.selectedEntity.type,
+              riskTrafficLight: simulation.selectedEntity.riskTrafficLight,
             }
           : null,
       });
@@ -115,6 +110,7 @@ export class FinanceController {
                 name: s.selectedEntity.name,
                 logoUrl: s.selectedEntity.logoUrl,
                 type: s.selectedEntity.type,
+                riskTrafficLight: s.selectedEntity.riskTrafficLight,
               }
             : null,
         }))

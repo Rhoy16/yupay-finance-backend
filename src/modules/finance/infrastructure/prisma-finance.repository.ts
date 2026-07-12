@@ -21,7 +21,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
             prismaRate.entity.id,
             prismaRate.entity.name,
             prismaRate.entity.logoUrl,
-            prismaRate.entity.type as any
+            prismaRate.entity.type as any,
+            prismaRate.entity.riskTrafficLight as any
           )
         : undefined
     );
@@ -42,7 +43,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
             prismaSim.selectedEntity.id,
             prismaSim.selectedEntity.name,
             prismaSim.selectedEntity.logoUrl,
-            prismaSim.selectedEntity.type as any
+            prismaSim.selectedEntity.type as any,
+            prismaSim.selectedEntity.riskTrafficLight as any
           )
         : undefined
     );
@@ -52,6 +54,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
     amount?: number;
     term?: number;
     region?: string;
+    productType?: string;
+    currency?: string;
   }): Promise<FinancialRate[]> {
     const where: Prisma.FinancialRateWhereInput = {};
 
@@ -66,6 +70,14 @@ export class PrismaFinanceRepository implements FinanceRepository {
         { region: { equals: filters.region, mode: 'insensitive' } },
         { region: { equals: 'Todo el Perú', mode: 'insensitive' } }
       ];
+    }
+
+    if (filters.productType) {
+      where.productType = filters.productType as any;
+    }
+
+    if (filters.currency) {
+      where.currency = filters.currency as any;
     }
 
     const prismaRates = await prisma.financialRate.findMany({
@@ -88,7 +100,8 @@ export class PrismaFinanceRepository implements FinanceRepository {
       prismaEntity.id,
       prismaEntity.name,
       prismaEntity.logoUrl,
-      prismaEntity.type as any
+      prismaEntity.type as any,
+      prismaEntity.riskTrafficLight as any
     );
   }
 
