@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 
 interface RegisterUserDTO {
-  nombre: string;
+  username: string;
   email: string;
   passwordRaw: string;
 }
@@ -25,7 +25,7 @@ export class RegisterUserUseCase {
 
     const user = User.create(
       userId,
-      dto.nombre,
+      dto.username,
       dto.email,
       passwordHash,
       'ESTUDIANTE'

@@ -13,7 +13,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export const authMiddleware = (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): void => {
@@ -33,8 +33,7 @@ export const authMiddleware = (
       plan: 'ESTUDIANTE' | 'PROFESIONAL';
     };
 
-    // Cast express request to inject user property
-    (req as any).user = decoded;
+    req.user = decoded;
     next();
   } catch (error) {
     return next(new UnauthorizedError('Token de sesión inválido o expirado.'));

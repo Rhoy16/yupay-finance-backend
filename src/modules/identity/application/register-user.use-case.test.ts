@@ -22,7 +22,7 @@ describe('RegisterUserUseCase Unit Tests', () => {
     userRepositoryMock.save = vi.fn().mockImplementation(async (user: User) => user);
 
     const result = await useCase.execute({
-      nombre: 'Juan Pérez',
+      username: 'Juan Pérez',
       email: 'juan@yupay.pe',
       passwordRaw: 'segura123',
     });
@@ -40,7 +40,7 @@ describe('RegisterUserUseCase Unit Tests', () => {
 
     await expect(
       useCase.execute({
-        nombre: 'Otro Juan',
+        username: 'Otro Juan',
         email: 'juan@yupay.pe',
         passwordRaw: 'otraPass123',
       })

@@ -5,11 +5,11 @@ import crypto from 'crypto';
 
 interface SaveSimulationDTO {
   userId: string | null;
-  monto: number;
-  plazo: number;
-  tasa: number;
-  interesGanado?: number;
-  entidadId: string;
+  amount: number;
+  termDays: number;
+  rate: number;
+  earnedInterest?: number;
+  entityId: string;
 }
 
 export class SaveSimulationUseCase {
@@ -17,26 +17,26 @@ export class SaveSimulationUseCase {
 
   async execute(dto: SaveSimulationDTO): Promise<Simulation> {
     // Validar si la entidad existe
-    const entity = await this.financeRepository.findEntityById(dto.entidadId);
+    const entity = await this.financeRepository.findEntityById(dto.entityId);
     if (!entity) {
       throw new NotFoundError('La entidad financiera seleccionada no existe.');
     }
 
     // Calcular o usar el interés provisto
-    const interest = dto.interesGanado !== undefined
-      ? dto.interesGanado
-      : Simulation.calculateInterest(dto.monto, dto.plazo, dto.tasa);
+    const interest = dto.earnedInterest !== undefined
+      ? dto.earnedInterest
+      : Simulation.calculateInterest(dto.amount, dto.termDays, dto.rate);
 
     const simulationId = crypto.randomUUID();
 
     const simulation = new Simulation(
       simulationId,
       dto.userId,
-      dto.monto,
-      dto.plazo,
-      dto.tasa,
+      dto.amount,
+      dto.termDays,
+      dto.rate,
       interest,
-      dto.entidadId,
+      dto.entityId,
       new Date()
     );
 

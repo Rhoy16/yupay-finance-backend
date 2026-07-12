@@ -27,10 +27,10 @@ describe('SaveSimulationUseCase Unit Tests', () => {
 
     const result = await useCase.execute({
       userId: 'user-123',
-      monto: 10000,
-      plazo: 360,
-      tasa: 0.06, // 6%
-      entidadId: 'entity-123',
+      amount: 10000,
+      termDays: 360,
+      rate: 0.06, // 6%
+      entityId: 'entity-123',
     });
 
     expect(result.amount).toBe(10000);
@@ -47,10 +47,10 @@ describe('SaveSimulationUseCase Unit Tests', () => {
     await expect(
       useCase.execute({
         userId: 'user-123',
-        monto: 10000,
-        plazo: 360,
-        tasa: 0.06,
-        entidadId: 'entity-invalid',
+        amount: 10000,
+        termDays: 360,
+        rate: 0.06,
+        entityId: 'entity-invalid',
       })
     ).rejects.toThrow(NotFoundError);
 

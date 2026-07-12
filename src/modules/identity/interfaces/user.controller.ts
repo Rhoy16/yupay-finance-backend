@@ -3,6 +3,7 @@ import { RegisterUserUseCase } from '../application/register-user.use-case.js';
 import { LoginUserUseCase } from '../application/login-user.use-case.js';
 import { GetProfileUseCase } from '../application/get-profile.use-case.js';
 import { registerSchema, loginSchema } from './user.validator.js';
+import { AuthenticatedRequest } from '../../../shared/middlewares/auth-middleware.js';
 
 export class UserController {
   constructor(
@@ -13,11 +14,11 @@ export class UserController {
 
   register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const body = registerSchema.parse(req.body);
+      const parsedBody = registerSchema.parse(req.body);
       const user = await this.registerUserUseCase.execute({
-        nombre: body.nombre,
-        email: body.email,
-        passwordRaw: body.password,
+        username: parsedBody.username,
+        email: parsedBody.email,
+        passwordRaw: parsedBody.password,
       });
 
       res.status(201).json({
@@ -34,10 +35,10 @@ export class UserController {
 
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const body = loginSchema.parse(req.body);
+      const parsedBody = loginSchema.parse(req.body);
       const result = await this.loginUserUseCase.execute({
-        email: body.email,
-        passwordRaw: body.password,
+        email: parsedBody.email,
+        passwordRaw: parsedBody.password,
       });
 
       res.status(200).json(result);
@@ -48,8 +49,8 @@ export class UserController {
 
   getProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // req.user es inyectado por el middleware de auth
-      const userId = (req as any).user.id;
+      const authReq = req as AuthenticatedRequest;
+      const userId = authReq.user!.id;
       const user = await this.getProfileUseCase.execute(userId);
 
       res.status(200).json({

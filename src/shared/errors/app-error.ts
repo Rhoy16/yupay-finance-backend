@@ -2,7 +2,7 @@ export class AppError extends Error {
   constructor(
     public readonly message: string,
     public readonly statusCode: number = 400,
-    public readonly errors: any = null
+    public readonly errors: unknown = null
   ) {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
@@ -17,7 +17,7 @@ export class NotFoundError extends AppError {
 }
 
 export class BadRequestError extends AppError {
-  constructor(message: string = 'Solicitud incorrecta', errors: any = null) {
+  constructor(message: string = 'Solicitud incorrecta', errors: unknown = null) {
     super(message, 400, errors);
   }
 }

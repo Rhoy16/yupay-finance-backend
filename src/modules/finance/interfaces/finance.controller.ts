@@ -3,8 +3,8 @@ import { GetRatesUseCase } from '../application/get-rates.use-case.js';
 import { SaveSimulationUseCase } from '../application/save-simulation.use-case.js';
 import { GetHistoryUseCase } from '../application/get-history.use-case.js';
 import { getRatesQuerySchema, saveSimulationSchema } from './finance.validator.js';
-import jwt from 'jsonwebtoken';
-import { env } from '../../../config/env.js';
+import { AuthenticatedRequest } from '../../../shared/middlewares/auth-middleware.js';
+import { ForbiddenError } from '../../../shared/errors/app-error.js';
 
 export class FinanceController {
   constructor(
@@ -45,23 +45,17 @@ export class FinanceController {
 
   saveSimulation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const authReq = req as any;
-      const parsed = saveSimulationSchema.safeParse(req.body);
-
-      if (!parsed.success) {
-        res.status(400).json({ message: 'Datos de simulación inválidos', errors: parsed.error.format() });
-        return;
-      }
+      const authReq = req as AuthenticatedRequest;
+      const parsedBody = saveSimulationSchema.parse(req.body);
 
       const userId = authReq.user?.id;
       if (!userId) {
-        res.status(403).json({ message: 'Se requiere un usuario autenticado para guardar una simulación.' });
-        return;
+        throw new ForbiddenError('Se requiere un usuario autenticado para guardar una simulación.');
       }
 
       const simulation = await this.saveSimulationUseCase.execute({
-        ...parsed.data,
-        userId: userId,
+        ...parsedBody,
+        userId,
       });
 
       res.status(201).json({
@@ -90,8 +84,8 @@ export class FinanceController {
 
   getHistory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Esta es una ruta protegida obligatoria, req.user está presente
-      const userId = (req as any).user.id;
+      const authReq = req as AuthenticatedRequest;
+      const userId = authReq.user!.id;
       const history = await this.getHistoryUseCase.execute(userId);
 
       res.status(200).json(
