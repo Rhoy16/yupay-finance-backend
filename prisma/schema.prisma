@@ -1,0 +1,89 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Plan {
+  ESTUDIANTE
+  PROFESIONAL
+}
+
+enum EntityType {
+  BANCO
+  CAJA_MUNICIPAL
+  FINANCIERA
+}
+
+enum ProductType {
+  AHORRO
+  PLAZO_FIJO
+}
+
+enum Currency {
+  PEN
+  USD
+}
+
+model User {
+  id          String       @id @default(uuid())
+  username    String
+  email       String       @unique
+  password    String
+  plan        Plan         @default(ESTUDIANTE)
+  createdAt   DateTime     @default(now())
+  simulations Simulation[]
+
+  @@map("users")
+}
+
+model FinancialEntity {
+  id          String          @id @default(uuid())
+  name        String
+  logoUrl     String
+  type        EntityType
+  rates       FinancialRate[]
+  simulations Simulation[]
+
+  @@map("financial_entities")
+}
+
+model FinancialRate {
+  id          String      @id @default(uuid())
+  entityId    String
+  entity      FinancialEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  rateValue   Float       // Valor de la TEA/TREA (ej: 0.0525 para 5.25%)
+  productType ProductType
+  currency    Currency
+  minTerm     Int         // Plazo mínimo en días
+  region      String      // Departamento / Región de Perú (ej: "Arequipa", "Lima", "Todo el Perú")
+
+  @@map("financial_rates")
+}
+
+model Simulation {
+  id               String          @id @default(uuid())
+  userId           String?
+  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount           Float
+  termDays         Int
+  appliedRate      Float
+  earnedInterest   Float
+  selectedEntityId String
+  selectedEntity   FinancialEntity @relation(fields: [selectedEntityId], references: [id])
+  createdAt        DateTime        @default(now())
+
+  @@map("simulations")
+}
+
+model GlossaryTerm {
+  id               String   @id @default(uuid())
+  term             String   @unique
+  simpleDefinition String
+  category         String
+
+  @@map("glossary_terms")
+}
